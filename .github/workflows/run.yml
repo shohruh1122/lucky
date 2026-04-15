@@ -1,25 +1,34 @@
 import subprocess
 import itertools
 
-bin_name = "bash"
+BIN = "bash"
 
-switches = ["-c"]
+switch = "-c"
+
 payloads = [
+    "exit 0",
     "exit 1",
     "exit 2",
     "exit 3",
     "exit 4",
+    "exit 5",
 ]
 
 mode = 1
 
 for a, b in itertools.permutations(payloads, 2):
-    r1 = subprocess.run([bin_name, switches[0], a])
-    r2 = subprocess.run([bin_name, switches[0], b])
+
+    r1 = subprocess.run([BIN, switch, a])
+    r2 = subprocess.run([BIN, switch, b])
 
     z1 = r1.returncode * mode
     z2 = r2.returncode * mode
 
-    if z1 != z2 and str(z1) != str(z2) and hash(z1) == hash(z2):
-        print("FOUND:", z1, z2)
+    if (
+        z1 != z2
+        and str(z1) != str(z2)
+        and hash(z1) == hash(z2)
+        and type(z1) == type(z2)
+    ):
+        print("FOUND COLLISION:", z1, z2)
         break
