@@ -1,22 +1,25 @@
-name: Dice Arena Speedrun
+import subprocess
+import itertools
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch: # Qo'lda ishga tushirish uchun
+bin_name = "bash"
 
-jobs:
-  exploit:
-    runs-on: ubuntu-latest
+switches = ["-c"]
+payloads = [
+    "exit 1",
+    "exit 2",
+    "exit 3",
+    "exit 4",
+]
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+mode = 1
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+for a, b in itertools.permutations(payloads, 2):
+    r1 = subprocess.run([bin_name, switches[0], a])
+    r2 = subprocess.run([bin_name, switches[0], b])
 
-      - name: Run Speedrun Script
-        run: python speedrun.py
+    z1 = r1.returncode * mode
+    z2 = r2.returncode * mode
+
+    if z1 != z2 and str(z1) != str(z2) and hash(z1) == hash(z2):
+        print("FOUND:", z1, z2)
+        break
